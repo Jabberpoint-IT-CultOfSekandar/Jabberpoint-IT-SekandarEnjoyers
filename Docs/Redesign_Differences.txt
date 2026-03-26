@@ -1,0 +1,52 @@
+Redesign — detailed explanation, rationale and grading pointers
+
+Goal
+- Make local, targeted improvements that reduce coupling and increase clarity without rewriting the whole project. We apply three patterns only where they bring clear benefit:
+	- Composite for the model tree (slides/items),
+	- Observer for view updates, and
+	- Command for controller actions.
+
+Where each pattern is applied
+- Composite (model tree): `Presentation` → `Slide` → `SlideItem` (`TextItem`, `BitmapItem`). Use this where the code needs to handle collections of items and single items uniformly (rendering, traversal, saving).
+- Observer (view updates): `Presentation` implements `Observable`; `SlideViewerComponent` implements `Observer`. Use this where the UI must update when the model changes.
+- Command (controller actions): `Command` interface with `execute()`; concrete commands such as `NextSlideCommand` and `PrevSlideCommand`; `KeyController` and `MenuController` hold/trigger `Command` instances.
+
+Why these patterns (short rationale)
+- Composite: the slide structure is naturally hierarchical; Composite makes code that walks or manipulates that tree simpler and consistent. Alternative considered: using plain collections plus helper functions — rejected because Composite gives a clearer object-oriented answer that reduces duplication when adding new item types.
+- Observer: UI components need to react to model changes. Alternative considered: polling or direct calls from controllers to views — polling is inefficient and direct calls increase coupling. Mediator was considered but mediators centralize and complicate simple publisher/subscriber flows; Observer is lighter and fits this need.
+- Command: controllers perform actions on the model. Alternatives considered: Strategy or calling model methods directly. Strategy is for interchangeable algorithms used inside an object (not for user-triggered actions). Direct calls make controllers know model details. Command packages an action into an object (easy to bind to keys/menus, test, and extend with undo).
+
+How each pattern meets its goal in this app (concrete)
+- Composite: lets rendering code and persistence code treat `Slide` and `SlideItem` generically ("draw everything" / "save everything"). This reduces branching and type checks.
+- Observer: when `Presentation` changes (next slide, edit slide), it calls `notifyObservers()`; each `SlideViewerComponent` updates itself via `update(presentation)`. This removes the need for controllers to know which views exist.
+- Command: controllers hold commands and call `execute()`; commands encapsulate the state/parameters for the action. This makes it easy to add menu bindings, keyboard shortcuts, or an undo stack later.
+
+Why these patterns were chosen over similar ones (thought process)
+- Command vs Strategy: Strategy swaps algorithms for behavior inside an object (good when an object needs interchangeable algorithms). Command models user-triggered actions that may be queued, logged or undone; it fits UI action handling better.
+- Observer vs Mediator: Mediator centralises communication between many colleagues; Observer keeps communication one-to-many and is simpler for model→view notifications.
+- Composite vs Decorator: Decorator adds responsibilities to a single object; Composite models a tree of objects where nodes and leaves are handled the same way — the slide/item relationship is a tree, not a layering of behavior.
+
+Clean Code principles used (practical links)
+- Single Responsibility: each class has a clearer job — model holds data, views render, controllers orchestrate via commands.
+- Tell, Don't Ask: commands and observers encourage telling objects to do work (`execute()`, `update()`) instead of pulling internal state and deciding outside.
+- Encapsulate What Varies: commands encapsulate actions; observers encapsulate reactions to change.
+
+Where to find the patterns and what to show for grading
+- Diagram: `JabberPoint_Redesign_From_Original` (project diagrams list) — open this diagram to see the applied patterns and relationships.
+- Model classes to look at in the project:
+	- Composite: `Presentation`, `Slide`, `SlideItem`, `TextItem`, `BitmapItem` (see `src/Slide.java`, `src/SlideItem.java`, `src/TextItem.java`, `src/BitmapItem.java`).
+	- Observer: `Presentation` and `SlideViewerComponent` in the diagram; check `src/SlideViewerComponent.java` and `src/Presentation.java` for the associations.
+	- Command: `KeyController`, `MenuController` in `src/KeyController.java`, `src/MenuController.java`; commands are modeled in the redesign diagram as `Command` / `NextSlideCommand` / `PrevSlideCommand` (these command classes are design artifacts in the diagram to show the pattern and can be implemented as small wrappers if needed).
+- Docs: `docs/OriginalDiagram.txt` and `docs/Redesign_Differences.txt` (this file) summarize intent and changes for graders.
+
+Grading checklist (what to point the grader to)
+ - Show `Presentation` composition to `Slide` and `Slide` composition to `SlideItem` (Composite).
+ - Show `Presentation` → `Observable` and `SlideViewerComponent` → `Observer`, and the `addObserver` / `notifyObservers` operations (Observer).
+ - Show `Command` interface, concrete commands, and controllers holding references to commands (Command).
+ - Explain one short example: key press → controller triggers command → command updates model → model notifies views.
+
+Notes and next steps
+- We limited the redesign to model/view/controller parts to keep the work small and reviewable. Implementing full code for new `Command` classes is optional — the diagram documents the recommended change. If you want, I can add small Java command classes and unit tests.
+
+Summary
+- The redesign uses three focused patterns where they give the most payoff: Composite for the domain tree, Observer for model→view updates, and Command for user actions. Each choice was picked because it matches the problem shape better than close alternatives, and the changes reduce coupling, increase testability, and make the system easier to extend.

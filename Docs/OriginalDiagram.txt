@@ -1,0 +1,27 @@
+Original diagram — simple explanation
+
+Main idea
+- The original diagram shows the actual program structure. `Presentation` is the main data holder; other parts (UI, controllers, persistence) talk to it.
+
+Key pieces
+- `Presentation`: main model holding many `Slide`s.
+- `Slide`: a page that contains `SlideItem`s.
+- `SlideItem` (abstract): base for content on a slide.
+  - `TextItem`: text element, uses `Style`.
+  - `BitmapItem`: image element, uses `Style`.
+- `Style`: formatting used by items.
+- `SlideViewerComponent`: UI component that displays the `Presentation`.
+- `SlideViewerFrame`: window that contains the viewer and holds a reference to the `Presentation`.
+- `KeyController` / `MenuController`: handle user input and call into the `Presentation`.
+- `Accessor` (with `XMLAccessor`, `DemoPresentation`): load/save presentations.
+- `JabberPoint`: app entry point wiring everything.
+- `AboutBox`: a small dialog opened by the menu.
+
+How they connect
+- `Presentation` contains `Slide`s; `Slide` contains `SlideItem`s — a tree structure.
+- Views and controllers hold references to `Presentation` to read or change data.
+- Persistence classes load or save the `Presentation` data.
+
+Why this matters
+- The original design is simple and direct: many parts use `Presentation` directly.
+- That makes the code easy to follow at first, but it also means changes to `Presentation` can affect many other parts (harder to change and test).
