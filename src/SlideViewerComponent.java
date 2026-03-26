@@ -3,6 +3,7 @@ import java.awt.Font;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.desktop.PreferencesEvent;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -17,7 +18,7 @@ import javax.swing.JFrame;
  * @version 1.6 2014/05/16 Sylvia Stuurman
  */
 
-public class SlideViewerComponent extends JComponent {
+public class SlideViewerComponent extends JComponent implements Observer {
 		
 	private Slide slide; // current slide
 	private Font labelFont = null; // font for labels
@@ -45,13 +46,14 @@ public class SlideViewerComponent extends JComponent {
 		return new Dimension(Slide.WIDTH, Slide.HEIGHT);
 	}
 
-	public void update(Presentation presentation, Slide data) {
-		if (data == null) {
+	@Override
+	public void update(Presentation presentation) {
+		if (presentation.getCurrentSlide() == null) {
 			repaint();
 			return;
 		}
 		this.presentation = presentation;
-		this.slide = data;
+		this.slide = presentation.getCurrentSlide();
 		repaint();
 		frame.setTitle(presentation.getTitle());
 	}

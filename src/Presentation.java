@@ -13,19 +13,37 @@ import java.util.ArrayList;
  * @version 1.6 2014/05/16 Sylvia Stuurman
  */
 
-public class Presentation {
+public class Presentation implements Observable {
 	private String showTitle; // title of the presentation
 	private ArrayList<Slide> showList = null; // an ArrayList with Slides
 	private int currentSlideNumber = 0; // the slidenummer of the current Slide
-	private SlideViewerComponent slideViewComponent = null; // the viewcomponent of the Slides
+	private Observer slideViewComponent = null; // the viewcomponent of the Slides
+
+	@Override
+	public void addObserver(Observer o) {
+		this.setShowView(o);
+	}
+
+	@Override
+	public void removeObserver(Observer o) {
+		if (this.slideViewComponent != o) {
+			return;
+		}
+		this.setShowView(null);
+	}
+
+	@Override
+	public void notifyObserver(Presentation p) {
+		this.slideViewComponent.update(p);
+	}
 
 	public Presentation() {
 		slideViewComponent = null;
 		clear();
 	}
 
-	public Presentation(SlideViewerComponent slideViewerComponent) {
-		this.slideViewComponent = slideViewerComponent;
+	public Presentation(Observer slideViewerComponent) {
+		addObserver(slideViewerComponent);
 		clear();
 	}
 
@@ -41,7 +59,7 @@ public class Presentation {
 		showTitle = nt;
 	}
 
-	public void setShowView(SlideViewerComponent slideViewerComponent) {
+	public void setShowView(Observer slideViewerComponent) {
 		this.slideViewComponent = slideViewerComponent;
 	}
 
@@ -54,7 +72,7 @@ public class Presentation {
 	public void setSlideNumber(int number) {
 		currentSlideNumber = number;
 		if (slideViewComponent != null) {
-			slideViewComponent.update(this, getCurrentSlide());
+			notifyObserver(this);
 		}
 	}
 
