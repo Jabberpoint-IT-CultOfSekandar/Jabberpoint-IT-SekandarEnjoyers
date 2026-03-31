@@ -1,0 +1,22 @@
+# Gradle and build output
+.gradle/
+build/
+out/
+
+# Local Java compilation output
+*.class
+bin/
+
+# Local Gradle distributions and archives used for bootstrapping
+gradle-*-bin.zip
+gradle-*/
+
+# Local helper dependencies for manual scripts
+lib/
+
+# OS/editor artifacts
+.DS_Store
+
+# IDE files
+.idea/
+*.iml
