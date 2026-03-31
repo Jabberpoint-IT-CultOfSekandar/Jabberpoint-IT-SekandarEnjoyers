@@ -3,7 +3,12 @@ import java.awt.Rectangle;
 import java.awt.image.ImageObserver;
 import java.util.Vector;
 
-/** <p>A slide. This class has a drawing functionality.</p>
+/**
+ * <p>A slide containing multiple slide items.</p>
+ * <p>This class has drawing functionality and acts as a Composite in the Composite pattern,
+ * managing a collection of SlideItems (TextItem, BitmapItem, CompositeSlideItem).</p>
+ * <p>Slides treat all items uniformly through the SlideItem interface, allowing for
+ * recursive rendering without special case handling.</p>
  * @author Ian F. Darwin, ian@darwinsys.com, Gert Florijn, Sylvia Stuurman
  * @version 1.1 2002/12/17 Gert Florijn
  * @version 1.2 2003/11/19 Sylvia Stuurman
@@ -11,6 +16,7 @@ import java.util.Vector;
  * @version 1.4 2007/07/16 Sylvia Stuurman
  * @version 1.5 2010/03/03 Sylvia Stuurman
  * @version 1.6 2014/05/16 Sylvia Stuurman
+ * @version 2.0 - Composite Pattern (Container)
  */
 
 public class Slide {
@@ -53,9 +59,32 @@ public class Slide {
 		return items;
 	}
 
-	// give the size of the Slide
+	// Give the size of the Slide
 	public int getSize() {
 		return items.size();
+	}
+
+	/**
+	 * Get a specific SlideItem by index (Composite pattern access).
+	 * @param index the index of the item
+	 * @return the SlideItem at that index
+	 */
+	public SlideItem getItem(int index) {
+		if (index >= 0 && index < items.size()) {
+			return (SlideItem) items.elementAt(index);
+		}
+		return null;
+	}
+
+	/**
+	 * Check if a specific item is a composite (container) or leaf node.
+	 * Useful for generic processing of mixed item hierarchies.
+	 * @param index the index of the item to check
+	 * @return true if the item is a composite, false if it's a leaf
+	 */
+	public boolean isCompositeItem(int index) {
+		SlideItem item = getItem(index);
+		return item != null && item.isComposite();
 	}
 
 	// draw the slide
