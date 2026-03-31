@@ -19,10 +19,13 @@ import javax.swing.JOptionPane;
  * @version 1.6 2014/05/16 Sylvia Stuurman
  */
 public class MenuController extends MenuBar {
-	
+    
 	private Frame parent; // the frame, only used as parent for the Dialogs
 	private Presentation presentation; // Commands are given to the presentation
-	
+	private final Command nextCommand;
+	private final Command prevCommand;
+	private final Command exitCommand;
+    
 	private static final long serialVersionUID = 227L;
 	
 	protected static final String ABOUT = "About";
@@ -45,9 +48,12 @@ public class MenuController extends MenuBar {
 	protected static final String LOADERR = "Load Error";
 	protected static final String SAVEERR = "Save Error";
 
-	public MenuController(Frame frame, Presentation pres) {
+	public MenuController(Frame frame, Presentation pres, Command nextCommand, Command prevCommand, Command exitCommand) {
 		parent = frame;
 		presentation = pres;
+		this.nextCommand = nextCommand;
+		this.prevCommand = prevCommand;
+		this.exitCommand = exitCommand;
 		MenuItem menuItem;
 		Menu fileMenu = new Menu(FILE);
 		fileMenu.add(menuItem = mkMenuItem(OPEN));
@@ -88,7 +94,7 @@ public class MenuController extends MenuBar {
 		fileMenu.add(menuItem = mkMenuItem(EXIT));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				presentation.exit(0);
+				if (exitCommand != null) exitCommand.execute();
 			}
 		});
 		add(fileMenu);
@@ -96,13 +102,13 @@ public class MenuController extends MenuBar {
 		viewMenu.add(menuItem = mkMenuItem(NEXT));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				presentation.nextSlide();
+				if (nextCommand != null) nextCommand.execute();
 			}
 		});
 		viewMenu.add(menuItem = mkMenuItem(PREV));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				presentation.prevSlide();
+				if (prevCommand != null) prevCommand.execute();
 			}
 		});
 		viewMenu.add(menuItem = mkMenuItem(GOTO));
@@ -110,7 +116,8 @@ public class MenuController extends MenuBar {
 			public void actionPerformed(ActionEvent actionEvent) {
 				String pageNumberStr = JOptionPane.showInputDialog((Object)PAGENR);
 				int pageNumber = Integer.parseInt(pageNumberStr);
-				presentation.setSlideNumber(pageNumber - 1);
+				Command gotoCmd = new GotoSlideCommand(presentation, pageNumber - 1);
+				gotoCmd.execute();
 			}
 		});
 		add(viewMenu);
