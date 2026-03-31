@@ -38,8 +38,13 @@ public class SlideViewerFrame extends JFrame {
 				}
 			});
 		getContentPane().add(slideViewerComponent);
-		addKeyListener(new KeyController(presentation)); // add a controller
-		setMenuBar(new MenuController(this, presentation));	// add another controller
+		// create commands and wire controllers
+		Command next = new NextSlideCommand(presentation);
+		Command prev = new PrevSlideCommand(presentation);
+		Command exit = new ExitAppCommand();
+
+		addKeyListener(new KeyController(next, prev, exit)); // add a controller
+		setMenuBar(new MenuController(this, presentation, next, prev, exit));    // add another controller
 		setSize(new Dimension(WIDTH, HEIGHT)); // Same sizes as Slide has.
 		setVisible(true);
 	}
