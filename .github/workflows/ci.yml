@@ -45,7 +45,7 @@ jobs:
           name: app
 
       - name: Run app (test simulation)
-        run: java -cp out JabberPoint
+        run: java -cp out .\src\JabberPoint.java
 
   acceptance:
     needs: test
