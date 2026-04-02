@@ -1,5 +1,5 @@
 public interface Observable {
-    void addObserver(Observer o);
-    void removeObserver(Observer o);
-    void notifyObserver(Presentation p);
+    void addObserver(Observer observer);
+    void removeObserver(Observer observer);
+    void notifyObserver(Presentation presentation);
 }
