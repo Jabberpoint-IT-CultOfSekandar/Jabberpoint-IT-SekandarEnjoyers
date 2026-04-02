@@ -43,4 +43,23 @@ public class BitmapItemTest {
             g2d.dispose();
         }
     }
+
+    @Test
+    public void testMissingImageDoesNotCrash() {
+        Style.createStyles();
+
+        BitmapItem item = new BitmapItem(1, "nonexistent-image-12345.png");
+
+        BufferedImage canvas = new BufferedImage(200, 150, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = canvas.createGraphics();
+        try {
+            Rectangle bounds = item.getBoundingBox(g2d, null, 1.0f, Style.getStyle(1));
+            item.draw(0, 0, 1.0f, g2d, Style.getStyle(1), null);
+
+            assertEquals(0, bounds.width);
+            assertTrue(bounds.height > 0);
+        } finally {
+            g2d.dispose();
+        }
+    }
 }

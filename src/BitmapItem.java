@@ -36,9 +36,13 @@ public class BitmapItem extends SlideItem {
 		imageName = name;
 		try {
 			bufferedImage = ImageIO.read(new File(imageName));
+			if (bufferedImage == null) {
+				throw new IOException("Cannot read image file");
+			}
 		}
 		catch (IOException e) {
-			System.err.println(FILE + imageName + NOTFOUND) ;
+			System.err.println(FILE + imageName + NOTFOUND);
+			bufferedImage = null;
 		}
 	}
 
@@ -54,6 +58,11 @@ public class BitmapItem extends SlideItem {
 
 // give the  bounding box of the image
 	public Rectangle getBoundingBox(Graphics g, ImageObserver observer, float scale, Style myStyle) {
+		if (bufferedImage == null) {
+			int w = (int) (myStyle.indent * scale);
+			int h = (int) (myStyle.leading * scale);
+			return new Rectangle(w, 0, 0, h);
+		}
 		return new Rectangle((int) (myStyle.indent * scale), 0,
 				(int) (bufferedImage.getWidth(observer) * scale),
 				((int) (myStyle.leading * scale)) + 
@@ -64,6 +73,11 @@ public class BitmapItem extends SlideItem {
 	public void draw(int x, int y, float scale, Graphics g, Style myStyle, ImageObserver observer) {
 		int width = x + (int) (myStyle.indent * scale);
 		int height = y + (int) (myStyle.leading * scale);
+		if (bufferedImage == null) {
+			String fallback = "Image not found: " + imageName;
+			g.drawString(fallback, width, height + g.getFontMetrics().getAscent());
+			return;
+		}
 		g.drawImage(bufferedImage, width, height,(int) (bufferedImage.getWidth(observer)*scale),
                 (int) (bufferedImage.getHeight(observer)*scale), observer);
 	}
