@@ -20,10 +20,22 @@ The code was also cleaned up to better match the NHL Stenden coding style used i
 
 This project uses the Gradle wrapper, so you do not need a local Gradle install when `gradlew` / `gradlew.bat` is available in the repo.
 
-Run the test suite:
+### Test executables (must-know)
+
+- Primary test executable (Windows): `./gradlew.bat`
+- Primary test executable (macOS/Linux): `./gradlew`
+- Alternative local test script: `./run-tests.ps1`
+
+Run all Gradle tests:
 
 ```powershell
 .\gradlew.bat test
+```
+
+Run tests with the PowerShell script:
+
+```powershell
+.\run-tests.ps1
 ```
 
 Generate the coverage report:
@@ -46,6 +58,12 @@ Start the app:
 java -cp build/classes/java/main JabberPoint
 ```
 
+Executable path for local development:
+
+- Classpath: `build/classes/java/main`
+- Main class: `JabberPoint`
+- Full command: `java -cp build/classes/java/main JabberPoint`
+
 Note: the built-in demo presentation expects image files from the original JabberPoint materials. If those images are missing, run the app with your own XML presentation that only uses text items, or add the missing image files.
 
 If the wrapper scripts are not available for some reason, install Gradle locally and run the same tasks with `gradle` instead.
@@ -53,3 +71,16 @@ If the wrapper scripts are not available for some reason, install Gradle locally
 ## CI/CD
 
 The GitHub Actions pipeline runs on pushes and pull requests to `main`. It compiles the project, runs the unit tests, and publishes JaCoCo/JUnit artifacts for review.
+
+### DTAP mapping used in this project
+
+- Development (D): `build` job compiles sources and creates the executable artifact.
+- Testing (T): `test` job runs unit tests and coverage (`jacocoTestReport`).
+- Acceptance (A): `acceptance` environment consumes the artifact and runs acceptance gate steps.
+- Production (P): `production` environment consumes the artifact and runs deployment steps.
+
+Executable artifact path in pipeline:
+
+- Built file: `JabberPoint.jar`
+- Uploaded artifact name: `app`
+- Produced in the `build` job and downloaded in `acceptance` and `production`.
